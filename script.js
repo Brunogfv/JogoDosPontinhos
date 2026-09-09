@@ -545,8 +545,6 @@ function reiniciar() {
 
 btnReiniciar.addEventListener("click", reiniciar);
 
-
-
 tamanho.addEventListener('change', () => {
     const tamanhoSelecionado = parseInt(tamanho.value);
     // console.log(tamanhoSelecionado);
@@ -560,3 +558,5 @@ modoJogo.addEventListener("change", () => {
     modoAtual = modoJogo.value;
     reiniciar();
 });
+
+criarTabuleiro(tamanhoAtual);

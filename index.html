@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    
+    <link rel="stylesheet" href="style.css">
+
+    <title>Jogo dos Pontinhos</title>
+</head>
+<body>
+        <div class="container">
+            <h1 id="titulo">Jogo dos Pontinhos</h1>
+    
+            <div class="vez" id="vez">Vez do Jogador 1</div>
+
+            <div id="mensagemFinal"></div>
+    
+            <h2 class="placar">Placar</h2>
+            <div class="pontos">
+                <div class="jogador1" id="jogador1">Jogador 1: 0</div>
+                <div class="jogador2" id="jogador2">Jogador 2: 0</div>
+            </div>
+            
+            <div class="tabuleiro" id="tabuleiro"></div>
+    
+            <div class="modo-jogo">
+                <label for="modoJogo">Modo Jogo:</label>
+                <select name="modo" id="modoJogo">
+                    <option value="jogador">Jogador x Jogador</option>
+                    <option value="computador">Jogador x Computador</option>
+                </select>
+            </div>
+            <div class="selecao">
+                <label class="selecaoTexto" for="tamanhoTabuleiro">Escolha um tamanho: </label>
+                <select name="tamanhoTabuleiro" id="tamanhoTabuleiro">
+                    <option value="4">4 x 4</option>
+                    <option value="8">8 x 8</option>
+                    <option value="16">16 x 16</option>
+                    <option value="32">32 x 32</option>
+                </select>
+            </div>
+            
+            <button id="btnReiniciar">Reiniciar</button>
+
+        </div>
+
+    <script src="script.js"></script>
+</body>
+</html>

@@ -16,6 +16,40 @@ let tamanhoAtual = 4;
 let modoAtual = "jogador";
 let jogoFinalizado = false;
 
+function criarTabuleiro(tamanho) {
+    tamanhoAtual = tamanho;
+
+    tabuleiro.classList.remove("tam-4", "tam-8", "tam-16", "tam-32");
+    tabuleiro.classList.add(`tam-${tamanho}`);
+
+    tabuleiro.innerHTML = '';
+    // linhasExistentes.clear();
+    // jogadorAtual = 1;
+
+    tabuleiro.style.gridTemplateColumns = `repeat(${tamanho}, 1fr)`;
+
+    for(let linha = 0; linha < tamanho; linha++) {
+        for(let coluna = 0; coluna < tamanho; coluna++) {
+            criarPontos(linha, coluna);
+        }
+    }
+    
+}
+
+function criarPontos(linha, coluna) {
+    const ponto = document.createElement('div');
+    
+    ponto.classList.add("ponto");
+    tabuleiro.appendChild(ponto);
+    
+    ponto.dataset.linha = linha;
+    ponto.dataset.coluna = coluna;
+    
+    ponto.addEventListener('click', () => {
+        selecionarPonto(ponto);
+    })
+}
+
 function selecionarPonto(ponto) {
 
     if(jogoFinalizado) return;
@@ -52,14 +86,6 @@ function selecionarPonto(ponto) {
     }
 }
 
-function limparSelecao() {
-    if(primeiroPonto) {
-        primeiroPonto.classList.remove("selecionado");
-    }
-    primeiroPonto = null;
-    segundoPonto = null;
-}
-
 function saoVizinhos(ponto1, ponto2) {
     if (ponto1.dataset.linha === ponto2.dataset.linha &&  Math.abs(ponto1.dataset.coluna - ponto2.dataset.coluna) === 1 ) {
         console.log("São vizinhos.")
@@ -71,20 +97,6 @@ function saoVizinhos(ponto1, ponto2) {
         console.log("Não são vizinhos.")
         return false;
     }
-}
-
-function gerarIdLinha(ponto1, ponto2) {
-    // console.log(`Linha 1 ${ponto1.dataset.linha} e Coluna 1 ${ponto1.dataset.coluna} || Linha 2 ${ponto2.dataset.linha} e Coluna 2 ${ponto2.dataset.coluna}`);
-
-    let linha1 = parseInt(ponto1.dataset.linha);
-    let coluna1 = parseInt(ponto1.dataset.coluna);
-    let linha2 = parseInt(ponto2.dataset.linha);
-    let coluna2 = parseInt(ponto2.dataset.coluna);
-
-    if (linha1 > linha2 || (linha1 === linha2 && coluna1 > coluna2)) {
-        [linha1, coluna1, linha2, coluna2] = [linha2, coluna2, linha1, coluna1];
-    }
-    return `${linha1},${coluna1} - ${linha2},${coluna2}`;
 }
 
 function criarLinha(ponto1, ponto2) {
@@ -120,6 +132,7 @@ function criarLinha(ponto1, ponto2) {
             linha.style.transform = "translateY(-50%)"
             linha.style.width = `${Math.abs(centroX1 - centroX2)}px`;
             linha.style.height = "2px";
+
             tabuleiro.appendChild(linha);
             linhasExistentes.add(id);
             // console.log(id);
@@ -143,6 +156,7 @@ function criarLinha(ponto1, ponto2) {
             linha.style.transform = "translateX(-50%)";
             linha.style.width = "2px";
             linha.style.height = `${Math.abs(centroY2 - centroY1)}px`;
+
             tabuleiro.appendChild(linha);
             linhasExistentes.add(id);
             // console.log(id);
@@ -150,6 +164,64 @@ function criarLinha(ponto1, ponto2) {
             return true;
         }
     }
+}
+
+function gerarIdLinha(ponto1, ponto2) {
+    // console.log(`Linha 1 ${ponto1.dataset.linha} e Coluna 1 ${ponto1.dataset.coluna} || Linha 2 ${ponto2.dataset.linha} e Coluna 2 ${ponto2.dataset.coluna}`);
+
+    let linha1 = parseInt(ponto1.dataset.linha);
+    let coluna1 = parseInt(ponto1.dataset.coluna);
+    let linha2 = parseInt(ponto2.dataset.linha);
+    let coluna2 = parseInt(ponto2.dataset.coluna);
+
+    if (linha1 > linha2 || (linha1 === linha2 && coluna1 > coluna2)) {
+        [linha1, coluna1, linha2, coluna2] = [linha2, coluna2, linha1, coluna1];
+    }
+    return `${linha1},${coluna1} - ${linha2},${coluna2}`;
+}
+
+function verificarQuadradosDaJogada(ponto1, ponto2) {
+    let quadradosFechados = 0;
+
+    const linha1 = Number(ponto1.dataset.linha);
+    const coluna1 = Number(ponto1.dataset.coluna);
+
+    const linha2 = Number(ponto2.dataset.linha);
+    const coluna2 = Number(ponto2.dataset.coluna);
+    
+    const linhaAtual = linha1;
+    const linhaInicial = Math.min(linha1, linha2);
+    const colunaInicial = Math.min(coluna1, coluna2);
+    const colunaAtual = coluna1;
+
+    if(linha1 === linha2) {
+        if(linhaAtual > 0) {
+            if(quadradoCompleto(linhaAtual - 1, colunaInicial)) {
+                quadradosFechados++;
+                marcarQuadrado(linhaAtual - 1, colunaInicial);
+            }
+        }
+        if(linhaAtual < tamanhoAtual - 1){
+            if(quadradoCompleto(linhaAtual, colunaInicial)) {
+                    quadradosFechados++;
+                    marcarQuadrado(linhaAtual, colunaInicial);
+                }
+        }
+    }else{
+        if(colunaAtual > 0) {
+            if(quadradoCompleto(linhaInicial, colunaAtual - 1)) {
+                quadradosFechados++;
+                marcarQuadrado(linhaInicial, colunaAtual - 1);
+            }
+        }
+        if(colunaAtual < tamanhoAtual - 1) {
+            if(quadradoCompleto(linhaInicial, colunaAtual)) {
+                    quadradosFechados++;
+                    marcarQuadrado(linhaInicial, colunaAtual);
+                }
+        }
+    }
+    return quadradosFechados;
 }
 
 function quadradoCompleto(linha, coluna) {
@@ -177,17 +249,6 @@ function quadradoCompleto(linha, coluna) {
 }
 
 function marcarQuadrado(linha, coluna) {
-    // const linhaDoQuadrado = linha.getBoundingClientRect();
-    // const colunDoQuadrado = coluna.getBoundingClientRect();
-
-    // const supEsquerdoLinha = linha;
-    // const supEsquerdoColuna = coluna;
-
-    // const supDireitoLinha = linha;
-    // const supDireitoColuna = coluna + 1;
-
-    // const infEsquerdoLinha = linha + 1;
-    // const infEsquerdoColuna = coluna;
 
     const pontoSupEsq = tabuleiro.querySelector(`.ponto[data-linha="${linha}"][data-coluna="${coluna}"]`);
     const pontoSupDir = tabuleiro.querySelector(`.ponto[data-linha="${linha}"][data-coluna="${coluna + 1}"]`);
@@ -223,73 +284,6 @@ function marcarQuadrado(linha, coluna) {
     quadrado.style.height = `${altura}px`;
 
     tabuleiro.appendChild(quadrado);
-
-    // console.log(supEsquerdoLinha, supEsquerdoColuna);
-    // console.log(supDireitoLinha, supDireitoColuna);
-    // console.log(infEsquerdoLinha, infEsquerdoColuna);
-
-    // console.log(posicaoSupEsq);
-    // console.log(posicaoSupDir);
-    // console.log(posicaoInfEsq);
-    // console.log(posicaoTabuleiro);
-
-    // console.log(centroXEsq, centroYSup, altura, largura);
-}
-
-function verificarQuadradosDaJogada(ponto1, ponto2) {
-    let quadradosFechados = 0;
-
-    const linha1 = Number(ponto1.dataset.linha);
-    const coluna1 = Number(ponto1.dataset.coluna);
-
-    const linha2 = Number(ponto2.dataset.linha);
-    const coluna2 = Number(ponto2.dataset.coluna);
-    
-    const linhaAtual = linha1;
-    const linhaInicial = Math.min(linha1, linha2);
-    const colunaInicial = Math.min(coluna1, coluna2);
-    const colunaAtual = coluna1;
-
-    if(linha1 === linha2) {
-        if(linhaAtual > 0) {
-            // quadradoCompleto(linhaAtual - 1, colunaInicial);
-            // console.log("Acima: ", quadradoCompleto(linhaAtual - 1, colunaInicial));
-            if(quadradoCompleto(linhaAtual - 1, colunaInicial)) {
-                quadradosFechados++;
-                marcarQuadrado(linhaAtual - 1, colunaInicial);
-                // console.log(quadradosFechados);
-            }
-        }
-
-        // quadradoCompleto(linhaAtual, colunaInicial);
-        // console.log("Abaixo: ", quadradoCompleto(linhaAtual, colunaInicial));
-        if(linhaAtual < tamanhoAtual - 1){
-            if(quadradoCompleto(linhaAtual, colunaInicial)) {
-                    quadradosFechados++;
-                    marcarQuadrado(linhaAtual, colunaInicial);
-                    // console.log(quadradosFechados);
-                }
-        }
-    }else{
-        if(colunaAtual > 0) {
-            // console.log("Esquerda: ", quadradoCompleto(linhaInicial, colunaAtual - 1));
-            if(quadradoCompleto(linhaInicial, colunaAtual - 1)) {
-                quadradosFechados++;
-                marcarQuadrado(linhaInicial, colunaAtual - 1);
-                // console.log(quadradosFechados);
-            }
-        }
-
-        // console.log("Direita: ", quadradoCompleto(linhaInicial, colunaAtual));
-        if(colunaAtual < tamanhoAtual - 1) {
-            if(quadradoCompleto(linhaInicial, colunaAtual)) {
-                    quadradosFechados++;
-                    marcarQuadrado(linhaInicial, colunaAtual);
-                    // console.log(quadradosFechados);
-                }
-        }
-    }
-    return quadradosFechados;
 }
 
 function atualizarPlacar(quantidade) {
@@ -310,27 +304,6 @@ function atualizarPlacar(quantidade) {
         }
     }
     
-}
-
-function trocarJogador(){
-    jogador.classList.remove("vez-jogador1", "vez-jogador2")
-
-    if(jogadorAtual === 1) {
-        jogadorAtual = 2;
-
-        if(modoAtual === "computador") {
-            jogador.textContent = "Vez do Computador";
-        }else{
-            jogador.textContent = "Vez do Jogador 2."
-        }
-
-        jogador.classList.add("vez-jogador2");
-
-    }else{
-        jogadorAtual = 1;
-        jogador.textContent = "Vez do Jogador 1."
-        jogador.classList.add("vez-jogador1");
-    }
 }
 
 function verificarFimDeJogo() {
@@ -354,38 +327,33 @@ function verificarFimDeJogo() {
     }
 }
 
-function criarPontos(linha, coluna) {
-    const ponto = document.createElement('div');
-    
-    ponto.classList.add("ponto");
-    tabuleiro.appendChild(ponto);
-    
-    ponto.dataset.linha = linha;
-    ponto.dataset.coluna = coluna;
-    
-    ponto.addEventListener('click', () => {
-        selecionarPonto(ponto);
-    })
+function limparSelecao() {
+    if(primeiroPonto) {
+        primeiroPonto.classList.remove("selecionado");
+    }
+    primeiroPonto = null;
+    segundoPonto = null;
 }
 
-function criarTabuleiro(tamanho) {
-    tamanhoAtual = tamanho;
+function trocarJogador(){
+    jogador.classList.remove("vez-jogador1", "vez-jogador2")
 
-    tabuleiro.classList.remove("tam-4", "tam-8", "tam-16", "tam-32");
-    tabuleiro.classList.add(`tam-${tamanho}`);
+    if(jogadorAtual === 1) {
+        jogadorAtual = 2;
 
-    tabuleiro.innerHTML = '';
-    // linhasExistentes.clear();
-    // jogadorAtual = 1;
-
-    tabuleiro.style.gridTemplateColumns = `repeat(${tamanho}, 1fr)`;
-
-    for(let linha = 0; linha < tamanho; linha++) {
-        for(let coluna = 0; coluna < tamanho; coluna++) {
-            criarPontos(linha, coluna);
+        if(modoAtual === "computador") {
+            jogador.textContent = "Vez do Computador";
+        }else{
+            jogador.textContent = "Vez do Jogador 2."
         }
+
+        jogador.classList.add("vez-jogador2");
+
+    }else{
+        jogadorAtual = 1;
+        jogador.textContent = "Vez do Jogador 1."
+        jogador.classList.add("vez-jogador1");
     }
-    
 }
 
 function contarQuadradosPossiveis(ponto1, ponto2) {
@@ -547,9 +515,6 @@ btnReiniciar.addEventListener("click", reiniciar);
 
 tamanho.addEventListener('change', () => {
     const tamanhoSelecionado = parseInt(tamanho.value);
-    // console.log(tamanhoSelecionado);
-    // criarTabuleiro(tamanhoSelecionado);
-
     tamanhoAtual = tamanhoSelecionado;
     reiniciar();
 });
